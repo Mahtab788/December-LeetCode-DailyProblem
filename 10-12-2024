@@ -1,0 +1,38 @@
+#.2981. Find Longest Special Substring That Occurs Thrice I.
+public class Solution {
+    public int maximumLength(String s) {
+        int n = s.length();
+        int l = 1, r = n;
+
+        // If no special substring of length 1 exists at least thrice, return -1
+        if (!helper(s, n, l)) return -1;
+
+        // Perform binary search to find the maximum length
+        while (l + 1 < r) {
+            int mid = (l + r) / 2;
+            if (helper(s, n, mid)) l = mid; // Try longer substrings
+            else r = mid; // Shorten the substring length
+        }
+
+        return l; // Maximum valid length
+    }
+
+    // Helper to check if a substring of length 'x' appears at least 3 times
+    private boolean helper(String s, int n, int x) {
+        int[] cnt = new int[26]; // Count occurrences of valid substrings
+        int p = 0;
+
+        for (int i = 0; i < n; i++) {
+            // Adjust the pointer 'p' to ensure substring is "special"
+            while (s.charAt(p) != s.charAt(i)) p++;
+            
+            // Check if substring length is valid
+            if (i - p + 1 >= x) cnt[s.charAt(i) - 'a']++;
+
+            // Return true if any substring appears at least 3 times
+            if (cnt[s.charAt(i) - 'a'] > 2) return true;
+        }
+
+        return false; // No valid substring found
+    }
+}

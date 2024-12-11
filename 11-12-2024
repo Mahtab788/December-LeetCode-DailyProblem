@@ -1,0 +1,27 @@
+#.2779. Maximum Beauty of an Array After Applying Operation.
+
+
+class Solution {
+    public int maximumBeauty(int[] nums, int k) {
+        // List to store range events
+        List<int[]> events = new ArrayList<>();
+        
+        // Create range events for each number
+        for (int num : nums) {
+            events.add(new int[]{num - k, 1}); // Start of range
+            events.add(new int[]{num + k + 1, -1}); // End of range (+1 to close range)
+        }
+        
+        // Sort events by position, breaking ties by event type
+        events.sort((a, b) -> a[0] == b[0] ? Integer.compare(a[1], b[1]) : Integer.compare(a[0], b[0]));
+        
+        // Sweep line to calculate maximum overlap
+        int maxBeauty = 0, currentBeauty = 0;
+        for (int[] event : events) {
+            currentBeauty += event[1];
+            maxBeauty = Math.max(maxBeauty, currentBeauty);
+        }
+        
+        return maxBeauty;
+    }
+}

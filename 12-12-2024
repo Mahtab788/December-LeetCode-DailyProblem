@@ -1,0 +1,36 @@
+#.2558. Take Gifts From the Richest Pile.
+
+import java.util.PriorityQueue;
+import java.util.Collections;
+
+public class Solution {
+    public long pickGifts(int[] gifts, int k) {
+        // Max-heap to track the pile with the maximum gifts
+        PriorityQueue<Integer> maxHeap = new PriorityQueue<>(Collections.reverseOrder());
+        
+        // Add all gift piles to the max-heap
+        for (int gift : gifts) {
+            maxHeap.add(gift);
+        }
+        
+        // Perform k iterations
+        for (int i = 0; i < k; i++) {
+            // Extract the maximum pile
+            int maxGifts = maxHeap.poll();
+            
+            // Leave behind the floor of the square root
+            int remainingGifts = (int) Math.sqrt(maxGifts);
+            
+            // Add the remaining gifts back into the heap
+            maxHeap.add(remainingGifts);
+        }
+        
+        // Sum up the remaining gifts in all piles
+        long totalGifts = 0;
+        while (!maxHeap.isEmpty()) {
+            totalGifts += maxHeap.poll();
+        }
+        
+        return totalGifts;
+    }
+}

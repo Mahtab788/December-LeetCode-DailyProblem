@@ -1,0 +1,31 @@
+#.2762. Continuous Subarrays.
+
+public class Solution {
+    public long continuousSubarrays(int[] nums) {
+        int n = nums.length;
+        long result = 0;
+        int start = 0;
+
+        TreeMap<Integer, Integer> countMap = new TreeMap<>(); // Tracks frequency of elements in the window
+
+        for (int end = 0; end < n; end++) {
+            // Add the current element to the frequency map
+            countMap.put(nums[end], countMap.getOrDefault(nums[end], 0) + 1);
+
+            // Ensure the range condition is satisfied
+            while (countMap.lastKey() - countMap.firstKey() > 2) {
+                // Shrink the window from the start
+                countMap.put(nums[start], countMap.get(nums[start]) - 1);
+                if (countMap.get(nums[start]) == 0) {
+                    countMap.remove(nums[start]);
+                }
+                start++;
+            }
+
+            // Count the number of valid subarrays ending at 'end'
+            result += end - start + 1;
+        }
+
+        return result;
+    }
+}

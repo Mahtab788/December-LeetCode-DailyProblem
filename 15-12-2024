@@ -1,0 +1,64 @@
+#.1792. Maximum Average Pass Ratio.
+
+class Solution {
+    public double maxAverageRatio(int[][] classes, int extraStudents) {
+        // Priority queue (max-heap) to store ClassRecord objects sorted by their gain in pass ratio
+        PriorityQueue<ClassRecord> pq = new PriorityQueue<>(new Compare());
+        
+        // Initialize the priority queue with all class records
+        for (int[] cl : classes)
+            pq.add(new ClassRecord(cl));
+        
+        // Assign extra students to the class with the highest gain in pass ratio
+        while (extraStudents-- > 0)
+            pq.add(pq.remove().addOneStudent());
+        
+        // Calculate the total average pass ratio
+        double sum = 0;
+        while (!pq.isEmpty()) {
+            ClassRecord cl = pq.remove();
+            sum += (double) cl.pass / cl.total; // Add the pass ratio of the class
+        }
+
+        // Return the average pass ratio
+        return sum / classes.length;
+    }
+}
+
+class ClassRecord {
+    int pass;  // Number of students passing the class
+    int total; // Total number of students in the class
+    double inc; // Gain in pass ratio if one extra student is added
+
+    // Constructor to initialize the ClassRecord object and calculate the initial gain
+    public ClassRecord(int[] array) {
+        pass = array[0];
+        total = array[1];
+        inc = getIncrement();
+    }
+
+    // Method to add one student to the class and recalculate the gain
+    public ClassRecord addOneStudent() {
+        pass++;
+        total++;
+        inc = getIncrement(); // Update the gain
+        return this;
+    }
+
+    // Helper method to calculate the gain in pass ratio by adding one extra student
+    private double getIncrement() {
+        return (pass + 1.0) / (total + 1) - (double) pass / total;
+    }
+}
+
+class Compare implements Comparator<ClassRecord> {
+    // Comparator to sort ClassRecord objects in descending order of gain (inc)
+    public int compare(ClassRecord a, ClassRecord b) {
+        if (a.inc < b.inc)
+            return 1;
+        else if (a.inc > b.inc)
+            return -1;
+        else
+            return 0;
+    }
+}

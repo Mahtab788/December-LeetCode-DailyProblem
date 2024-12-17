@@ -1,0 +1,57 @@
+#.2182. Construct String With Repeat Limit.
+
+
+class Solution {
+    public String repeatLimitedString(String s, int repeatLimit) {
+        // Step 1: Count the frequency of each character
+        int[] freq = new int[26];
+        for (char c : s.toCharArray()) {
+            freq[c - 'a']++;
+        }
+
+        // Step 2: Max-Heap to store characters in descending order of lexicographical value
+        PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> b[0] - a[0]);
+        for (int i = 0; i < 26; i++) {
+            if (freq[i] > 0) {
+                pq.offer(new int[]{i, freq[i]}); // {character_index, frequency}
+            }
+        }
+
+        StringBuilder result = new StringBuilder();
+
+        while (!pq.isEmpty()) {
+            // Take the largest lexicographical character
+            int[] current = pq.poll();
+            char ch = (char) ('a' + current[0]);
+            int count = Math.min(current[1], repeatLimit); // Limit to repeatLimit times
+
+            // Append the character 'count' times
+            for (int i = 0; i < count; i++) {
+                result.append(ch);
+            }
+
+            // Update the remaining frequency
+            current[1] -= count;
+
+            if (current[1] > 0) { 
+                // If the current character cannot be added due to repeatLimit
+                if (!pq.isEmpty()) {
+                    // Take the next largest character
+                    int[] next = pq.poll();
+                    char nextChar = (char) ('a' + next[0]);
+                    result.append(nextChar); // Append it once to "break" the sequence
+                    next[1]--;
+
+                    // Put both characters back into the heap if they still have remaining counts
+                    if (next[1] > 0) pq.offer(next);
+                    pq.offer(current);
+                } else {
+                    // No more characters to break the sequence; stop the process
+                    break;
+                }
+            }
+        }
+
+        return result.toString();
+    }
+}

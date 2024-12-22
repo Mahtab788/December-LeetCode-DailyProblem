@@ -1,0 +1,89 @@
+#.2940. Find Building Where Alice and Bob Can Meet.
+
+class Solution {
+
+    public int[] leftmostBuildingQueries(int[] heights, int[][] queries) {
+        // Monotonic stack to keep track of valid buildings in decreasing height order
+        List<Pair<Integer, Integer>> monoStack = new ArrayList<>();
+
+        // Result array to store the leftmost building indices for each query
+        int[] result = new int[queries.length];
+        Arrays.fill(result, -1); // Initialize results with -1 (default value)
+
+        // List to group queries by the target building index (rightmost building)
+        List<List<Pair<Integer, Integer>>> newQueries = new ArrayList<>(heights.length);
+        for (int i = 0; i < heights.length; i++) {
+            newQueries.add(new ArrayList<>());
+        }
+
+        // Process each query to pre-group them based on target building
+        for (int i = 0; i < queries.length; i++) {
+            int a = queries[i][0]; // Starting building for Alice
+            int b = queries[i][1]; // Starting building for Bob
+
+            // Ensure 'a' is the smaller index to simplify processing
+            if (a > b) {
+                int temp = a;
+                a = b;
+                b = temp;
+            }
+
+            // Direct answer if Bob's building height is greater or they are the same building
+            if (heights[b] > heights[a] || a == b) {
+                result[i] = b;
+            } else {
+                // Add queries to the respective list for building `b`
+                newQueries.get(b).add(new Pair<>(heights[a], i));
+            }
+        }
+
+        // Process buildings from right to left
+        for (int i = heights.length - 1; i >= 0; i--) {
+            int monoStackSize = monoStack.size(); // Current size of the monotonic stack
+
+            // Process all queries targeting building `i`
+            for (Pair<Integer, Integer> pair : newQueries.get(i)) {
+                int position = search(pair.getKey(), monoStack); // Binary search for valid building
+                if (position < monoStackSize && position >= 0) {
+                    // Set the result to the leftmost valid building
+                    result[pair.getValue()] = monoStack.get(position).getValue();
+                }
+            }
+
+            // Update the monotonic stack by removing invalid entries
+            while (
+                !monoStack.isEmpty() &&
+                monoStack.get(monoStack.size() - 1).getKey() <= heights[i]
+            ) {
+                monoStack.remove(monoStack.size() - 1); // Remove buildings shorter or equal to current
+            }
+
+            // Add the current building to the monotonic stack
+            monoStack.add(new Pair<>(heights[i], i));
+        }
+
+        return result; // Return the results array
+    }
+
+    /**
+     * Helper function to perform binary search on the monotonic stack.
+     * Finds the leftmost building in the stack with height > given height.
+     */
+    private int search(int height, List<Pair<Integer, Integer>> monoStack) {
+        int left = 0;
+        int right = monoStack.size() - 1;
+        int ans = -1;
+
+        while (left <= right) {
+            int mid = (left + right) / 2;
+            if (monoStack.get(mid).getKey() > height) {
+                ans = Math.max(ans, mid); // Update the potential answer
+                left = mid + 1; // Narrow search to higher indices
+            } else {
+                right = mid - 1; // Narrow search to lower indices
+            }
+        }
+
+        return ans; // Return the final position
+    }
+}
